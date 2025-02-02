@@ -48,6 +48,14 @@ pub fn build(b: *std.Build) void {
         .root_module = lib_mod,
     });
 
+    // Add a module for 'router'
+    const router_module = b.addModule("router", .{
+        .root_source_file = b.path("src/router/router.zig"),
+    });
+
+    // Link the router module to the executable
+    exe.root_module.addImport("router", router_module);
+
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
     const exe_unit_tests = b.addTest(.{
@@ -60,34 +68,3 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&run_lib_unit_tests.step);
     test_step.dependOn(&run_exe_unit_tests.step);
 }
-
-// const std = @import("std");
-
-// pub fn build(b: *std.Build) void {
-//     const optimize = b.option(std.builtin.Mode, "optimize", "Build optimization mode") orelse .Debug;
-
-//     const exe = b.addExecutable(.{
-//         .name = "zag-framework",
-//         .root_source_file = b.path("src/main.zig"),
-//         .target = b.standardTargetOptions(.{}),
-//         .optimize = optimize,
-//     });
-
-//     exe.addObjectFile(b.path("src/router/router.zig"));
-
-//     // Install the executable
-//     b.installArtifact(exe);
-
-//     const run_cmd = b.addRunArtifact(exe);
-
-//     run_cmd.step.dependOn(b.getInstallStep());
-
-//     if (b.args) |args| {
-//         run_cmd.addArgs(args);
-//     }
-
-//     // Add the run step
-//     // const run_step = b.step(exe);
-//     const run_step = b.step("run", "Run the app");
-//     run_step.dependOn(&run_cmd.step);
-// }
