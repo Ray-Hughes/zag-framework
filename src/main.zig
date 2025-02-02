@@ -1,5 +1,6 @@
 const std = @import("std");
 const net = std.net;
+const http = std.http;
 const Router = @import("router").Router;
 
 fn homeHandler() void {
@@ -16,12 +17,16 @@ fn startServer() !void {
 
     try router.addRoute("GET", "/", homeHandler);
 
-    var server = try net.StreamServer.init(.{});
+    // Initialize a TCP server
+    var server = net.Server{
+        .listen_address = try net.Address.parseIp4("127.0.0.1", 8080),
+        .stream = net.Stream{ .handle = 0 },
+    };
     defer server.deinit();
 
-    try server.listen(.{ .address = net.Address.parseIp4("127.0.0.1", 8080) catch unreachable });
+    const connection = try server.accept();
 
-    std.debug.print("Server started at http://127.0.0.1:8080\n", .{});
+    std.debug.print("Server started at {}", .{connection.address});
 
     while (true) {
         var conn = try server.accept();
@@ -31,7 +36,6 @@ fn startServer() !void {
         const read_size = try conn.stream.read(&buffer);
         const request = buffer[0..read_size];
 
-        // Basic request parsing (VERY simple)
         if (std.mem.indexOf(u8, request, "GET / ")) |_| {
             if (router.matchRoute("GET", "/")) |handler| {
                 handler();
