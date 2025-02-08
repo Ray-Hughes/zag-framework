@@ -45,4 +45,4 @@ try router.get("/about", aboutHandler);
 
 ## Contributing
 Feel free to open issues and contribute!
-```
+
