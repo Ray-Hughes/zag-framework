@@ -1,4 +1,3 @@
-```
 # Zag Framework
 
 Zag is a minimalistic web framework written in Zig, inspired by Ruby on Rails.
